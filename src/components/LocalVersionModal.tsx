@@ -18,8 +18,10 @@ import {
   ArrowRight,
   ExternalLink,
   Laptop,
+  UploadCloud,
 } from 'lucide-react';
 import { downloadStandaloneViewerHtml } from '../utils/standaloneViewerGenerator';
+import { pushBackupToSupabase, getSupabaseConfig } from '../utils/supabaseClient';
 
 interface ParsedBackupInfo {
   fileName: string;
@@ -76,7 +78,57 @@ export const LocalVersionModal: React.FC<LocalVersionModalProps> = ({
   const [parseError, setParseError] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeTab, setActiveTab] = useState<'open_file' | 'current_data' | 'standalone_html'>('open_file');
+  const [isPushingSupabase, setIsPushingSupabase] = useState(false);
+  const [supabaseNotice, setSupabaseNotice] = useState<{ text: string; ok: boolean } | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handlePushBackupToSupabase = async (target: {
+    trackers: Tracker[];
+    folders: TrackerFolder[];
+    users: UserAccount[];
+    visits: SiteVisitRecord[];
+    fileName?: string;
+    note?: string;
+  }) => {
+    const cfg = getSupabaseConfig();
+    if (!cfg.url || !cfg.anonKey) {
+      setSupabaseNotice({
+        text: 'Connect your Supabase account first under Backup ⌄ → Supabase Backup & Files.',
+        ok: false,
+      });
+      return;
+    }
+    setIsPushingSupabase(true);
+    setSupabaseNotice(null);
+    try {
+      const res = await pushBackupToSupabase(
+        {
+          trackers: target.trackers,
+          folders: target.folders,
+          users: target.users,
+          visits: target.visits,
+        },
+        {
+          fileName: target.fileName,
+          note: target.note,
+        },
+        cfg
+      );
+      if (res.success && res.backup) {
+        setSupabaseNotice({
+          text: `Pushed backup "${res.backup.name}" (${res.backup.total_trackers} sheets) to Supabase!`,
+          ok: true,
+        });
+      } else {
+        setSupabaseNotice({
+          text: res.error || 'Failed to push backup to Supabase.',
+          ok: false,
+        });
+      }
+    } finally {
+      setIsPushingSupabase(false);
+    }
+  };
 
   const totalCurrentRows = trackers.reduce((sum, t) => sum + (t.rows ? t.rows.length : 0), 0);
 
@@ -439,8 +491,38 @@ export const LocalVersionModal: React.FC<LocalVersionModalProps> = ({
                     </div>
                   </div>
 
+                  {supabaseNotice && (
+                    <div className={`p-2.5 rounded-lg text-xs border ${
+                      supabaseNotice.ok
+                        ? 'bg-emerald-950/70 border-emerald-700 text-emerald-200'
+                        : 'bg-rose-950/70 border-rose-700 text-rose-200'
+                    }`}>
+                      {supabaseNotice.text}
+                    </div>
+                  )}
+
                   {/* Actions for Loaded Backup */}
                   <div className="pt-2 flex flex-wrap items-center justify-end gap-2 border-t border-slate-800">
+                    <button
+                      type="button"
+                      disabled={isPushingSupabase}
+                      onClick={() =>
+                        handlePushBackupToSupabase({
+                          trackers: parsedBackup.trackers,
+                          folders: parsedBackup.folders,
+                          users: parsedBackup.users,
+                          visits: parsedBackup.visits,
+                          fileName: parsedBackup.fileName,
+                          note: `Pushed from Local Backup Viewer (${parsedBackup.fileName})`,
+                        })
+                      }
+                      className="px-3 py-2 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+                      title="Push this backup file straight to your Supabase account"
+                    >
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>{isPushingSupabase ? 'Pushing...' : 'Push to Supabase'}</span>
+                    </button>
+
                     <button
                       type="button"
                       onClick={() => handleDownloadStandaloneHtml(parsedBackup.trackers)}
@@ -496,15 +578,45 @@ export const LocalVersionModal: React.FC<LocalVersionModalProps> = ({
                   ))}
                 </div>
 
+                {supabaseNotice && (
+                  <div className={`p-2.5 rounded-lg text-xs border ${
+                    supabaseNotice.ok
+                      ? 'bg-emerald-950/70 border-emerald-700 text-emerald-200'
+                      : 'bg-rose-950/70 border-rose-700 text-rose-200'
+                  }`}>
+                    {supabaseNotice.text}
+                  </div>
+                )}
+
                 <div className="pt-3 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
-                  <button
-                    type="button"
-                    onClick={() => handleDownloadJsonBackup(trackers)}
-                    className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer"
-                  >
-                    <Download className="w-3.5 h-3.5 text-emerald-400" />
-                    <span>Download Backup (.json)</span>
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handleDownloadJsonBackup(trackers)}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <Download className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Download Backup (.json)</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      disabled={isPushingSupabase}
+                      onClick={() =>
+                        handlePushBackupToSupabase({
+                          trackers,
+                          folders,
+                          users,
+                          visits,
+                          note: 'Current workspace snapshot',
+                        })
+                      }
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white transition-colors flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <UploadCloud className="w-3.5 h-3.5" />
+                      <span>{isPushingSupabase ? 'Pushing...' : 'Push Backup to Supabase'}</span>
+                    </button>
+                  </div>
 
                   <button
                     type="button"

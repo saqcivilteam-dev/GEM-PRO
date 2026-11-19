@@ -398,6 +398,18 @@ export default function App() {
     setTimeout(() => setRemoteToast(null), 3800);
   };
 
+  // Notify user whenever an uploaded JPEG / JPG / PNG / PDF file auto-saves to Supabase
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const handleSupabaseFileUploaded = (e: Event) => {
+      const detail = (e as CustomEvent<{ file_name?: string }>).detail;
+      const fname = detail?.file_name || 'file';
+      showRemoteToast(`☁️ Auto-saved "${fname}" to your Supabase account`);
+    };
+    window.addEventListener('supabase-file-uploaded', handleSupabaseFileUploaded);
+    return () => window.removeEventListener('supabase-file-uploaded', handleSupabaseFileUploaded);
+  }, []);
+
   // Detect invited co-workers arriving via shared collaboration link
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -2412,11 +2424,15 @@ export default function App() {
         activeTrackerId={activeTrackerId}
       />
 
-      {/* 11. Connect Supabase Account & Database Sync Modal */}
+      {/* 11. Connect Supabase Account & Backup / Auto File Storage Modal */}
       <SupabaseSyncModal
         isOpen={isSupabaseModalOpen}
         onClose={() => setIsSupabaseModalOpen(false)}
         trackers={trackers}
+        folders={folders}
+        users={users}
+        visits={siteVisits}
+        onRestoreFullState={handleRestoreFullState}
         onTrackersLoaded={(loadedTrackers) => {
           if (Array.isArray(loadedTrackers) && loadedTrackers.length > 0) {
             setTrackers(loadedTrackers);

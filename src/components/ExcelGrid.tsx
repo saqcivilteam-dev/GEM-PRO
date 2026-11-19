@@ -28,6 +28,7 @@ import {
   createMilestonesFromTemplate,
 } from '../utils/excelUtils';
 import { optimizeAndCompressImage } from '../utils/imageOptimizer';
+import { uploadFileToSupabase } from '../utils/supabaseClient';
 import {
   Plus,
   Trash2,
@@ -767,6 +768,22 @@ export const ExcelGrid: React.FC<ExcelGridProps> = ({
             };
           }
           return curr;
+        });
+
+        // Automatically push uploaded JPEG/JPG/PDF to Supabase Storage & Registry
+        const targetRow = tracker.rows.find((r) => r.id === rowId);
+        const siteLabel = String(targetRow?.values?.site_name || targetRow?.siteId || 'Site');
+        void uploadFileToSupabase({
+          file: optimized.type === 'pdf' ? file : undefined,
+          dataUrl: optimized.url,
+          fileName: optimized.name,
+          fileSize: optimized.size,
+          trackerId: tracker.id,
+          trackerName: tracker.name,
+          rowId,
+          siteName: siteLabel,
+          colId,
+          source: `Grid Cell (${colId})`,
         });
       } catch (err) {
         setUploadingCell(null);

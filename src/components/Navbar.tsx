@@ -18,6 +18,7 @@ import {
   ChevronDown,
   Save,
   Sliders,
+  Database,
 } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
@@ -319,12 +320,59 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <span>Backup &amp; Restore</span>
                 </div>
                 <span className="text-[10px] font-mono text-slate-400">
-                  Cloud &amp; Local
+                  Supabase · Drive · Local
                 </span>
               </div>
 
               <div className="space-y-2">
-                {/* 1. Google Drive Backup */}
+                {/* 1. Supabase Backup & Auto JPEG/JPG/PDF File Storage */}
+                {onOpenSupabaseModal && (
+                  <div
+                    onClick={() => {
+                      setIsCloudMenuOpen(false);
+                      onOpenSupabaseModal();
+                    }}
+                    className={`p-2.5 rounded-xl border transition-all cursor-pointer select-none ${
+                      isSupabaseConnected
+                        ? 'bg-emerald-950/30 border-emerald-600/60'
+                        : 'bg-slate-950/60 border-slate-800 hover:border-emerald-700/60'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex items-start gap-2.5 flex-1">
+                        <div className="p-2 rounded-lg bg-emerald-500/15 text-emerald-400 shrink-0 mt-0.5">
+                          <Database className="w-4 h-4" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span className="text-xs font-bold text-white">Supabase Backup &amp; Files</span>
+                            {isSupabaseConnected && (
+                              <span className="text-[9px] font-black px-1.5 py-0.2 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                CONNECTED
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+                            Push/Pull backup files &amp; auto-save uploaded JPEG, JPG &amp; PDFs
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsCloudMenuOpen(false);
+                          onOpenSupabaseModal();
+                        }}
+                        className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors cursor-pointer shrink-0"
+                      >
+                        {isSupabaseConnected ? 'Open' : 'Connect'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* 2. Google Drive Backup */}
                 <div className={`p-2.5 rounded-xl border transition-all ${
                   isGoogleDriveAutoSync
                     ? 'bg-sky-950/30 border-sky-600/60'

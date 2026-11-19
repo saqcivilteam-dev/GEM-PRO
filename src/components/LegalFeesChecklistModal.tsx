@@ -11,6 +11,7 @@ import {
   normalizeToStandardDate,
   getLocalDateString,
 } from '../utils/excelUtils';
+import { uploadFileToSupabase } from '../utils/supabaseClient';
 import {
   ShieldCheck,
   FileText,
@@ -153,6 +154,10 @@ export const LegalFeesChecklistModal: React.FC<LegalFeesChecklistModalProps> = (
     if (!file) return;
 
     const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type.includes('pdf');
+    const fileSizeStr = file.size >= 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(file.size / 1024))} KB`;
+    const targetItem = checklist.find((c) => c.id === itemId);
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
@@ -164,13 +169,26 @@ export const LegalFeesChecklistModal: React.FC<LegalFeesChecklistModalProps> = (
               name: file.name,
               type: (isPdf ? 'pdf' : 'jpg') as 'pdf' | 'jpg',
               url: dataUrl,
-              size: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+              size: fileSizeStr,
             },
           };
         }
         return item;
       });
       saveUpdatedChecklist(updated);
+
+      // Automatically save uploaded JPEG/JPG/PDF to Supabase
+      void uploadFileToSupabase({
+        file,
+        dataUrl,
+        fileName: file.name,
+        mimeType: file.type,
+        fileSize: fileSizeStr,
+        rowId: row.id,
+        siteName: String(row.values?.site_name || row.siteId || 'Site'),
+        colId: targetItem?.requirement || 'Checklist Attachment',
+        source: 'Legal & Regulatory Checklist',
+      });
     };
     reader.readAsDataURL(file);
   };

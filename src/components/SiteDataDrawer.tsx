@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { TrackerRow, SiteDocument, CustomEncodeField, SiteData2Record } from '../types/tracker';
 import { getLocalDateString, formatCurrencyPHP, parseNumericValue } from '../utils/excelUtils';
+import { uploadFileToSupabase } from '../utils/supabaseClient';
 import {
   X,
   MapPin,
@@ -121,19 +122,36 @@ export const SiteDataDrawer: React.FC<SiteDataDrawerProps> = ({
     if (!file) return;
 
     const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type.includes('pdf');
+    const fileSizeStr = file.size >= 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(file.size / 1024))} KB`;
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
+      const tag = isPdf ? 'Regulatory PDF' : 'Site Survey Photo';
       const newDoc: SiteDocument = {
         id: 'doc_' + Date.now().toString(),
         name: file.name,
         type: isPdf ? 'pdf' : 'jpg',
         url: dataUrl,
         uploadedAt: getLocalDateString(),
-        tag: isPdf ? 'Regulatory PDF' : 'Site Survey Photo',
-        fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+        tag,
+        fileSize: fileSizeStr,
       };
       setDocuments([newDoc, ...documents]);
+
+      // Automatically save uploaded JPEG/JPG/PDF to Supabase
+      void uploadFileToSupabase({
+        file,
+        dataUrl,
+        fileName: file.name,
+        mimeType: file.type,
+        fileSize: fileSizeStr,
+        rowId: row.id,
+        siteName: String(row.values?.site_name || row.siteId || 'Site'),
+        colId: tag,
+        source: 'Site Data 1',
+      });
     };
     reader.readAsDataURL(file);
   };
@@ -196,19 +214,36 @@ export const SiteDataDrawer: React.FC<SiteDataDrawerProps> = ({
     if (!file) return;
 
     const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type.includes('pdf');
+    const fileSizeStr = file.size >= 1024 * 1024
+      ? `${(file.size / (1024 * 1024)).toFixed(1)} MB`
+      : `${Math.max(1, Math.round(file.size / 1024))} KB`;
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = reader.result as string;
+      const tag = isPdf ? 'Phase 2 Blueprint / As-Built' : 'Phase 2 Inspection Photo';
       const newDoc: SiteDocument = {
         id: 'doc2_' + Date.now().toString(),
         name: file.name,
         type: isPdf ? 'pdf' : 'jpg',
         url: dataUrl,
         uploadedAt: getLocalDateString(),
-        tag: isPdf ? 'Phase 2 Blueprint / As-Built' : 'Phase 2 Inspection Photo',
-        fileSize: `${(file.size / (1024 * 1024)).toFixed(1)} MB`,
+        tag,
+        fileSize: fileSizeStr,
       };
       setData2Documents([newDoc, ...data2Documents]);
+
+      // Automatically save uploaded JPEG/JPG/PDF to Supabase
+      void uploadFileToSupabase({
+        file,
+        dataUrl,
+        fileName: file.name,
+        mimeType: file.type,
+        fileSize: fileSizeStr,
+        rowId: row.id,
+        siteName: String(row.values?.site_name || row.siteId || 'Site'),
+        colId: tag,
+        source: 'Site Data 2',
+      });
     };
     reader.readAsDataURL(file);
   };
