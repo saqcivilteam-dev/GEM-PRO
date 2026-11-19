@@ -1,0 +1,167 @@
+{
+  "entities": {
+    "Tracker": {
+      "title": "Tracker",
+      "description": "A project tracker containing grid columns, rows, SLA configurations, and dashboard widgets.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the tracker"
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the tracker project"
+        },
+        "folderId": {
+          "type": "string",
+          "description": "ID of parent folder"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed project description"
+        },
+        "columns": {
+          "type": "array",
+          "description": "Array of column definitions"
+        },
+        "rows": {
+          "type": "array",
+          "description": "Array of data rows containing site details, SLA progress, and legal checklists"
+        },
+        "frozenColumns": {
+          "type": "number",
+          "description": "Number of frozen leftmost columns"
+        },
+        "statusOptions": {
+          "type": "array",
+          "description": "Available status options with color badges"
+        },
+        "dashboardCards": {
+          "type": "array",
+          "description": "Configured KPI dashboard metric cards"
+        },
+        "isLocked": {
+          "type": "boolean",
+          "description": "Whether editing is locked"
+        },
+        "requireAdminApprovalForEdits": {
+          "type": "boolean",
+          "description": "Whether edits require admin approval"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        }
+      },
+      "required": ["id", "name", "columns", "rows"]
+    },
+    "Folder": {
+      "title": "Folder",
+      "description": "Category folder organizing trackers",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" }
+      },
+      "required": ["id", "name"]
+    },
+    "User": {
+      "title": "User",
+      "description": "Collaborator or team member account",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "username": { "type": "string" },
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string" },
+        "joinedAt": { "type": "string" }
+      },
+      "required": ["id", "name", "email", "role"]
+    },
+    "SiteVisit": {
+      "title": "SiteVisit",
+      "description": "Staff GPS site visit / attendance log",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "staffName": { "type": "string" },
+        "siteId": { "type": "string" },
+        "siteName": { "type": "string" },
+        "checkInTime": { "type": "string" }
+      },
+      "required": ["id", "staffName", "siteId", "checkInTime"]
+    },
+    "ExecutiveDeck": {
+      "title": "ExecutiveDeck",
+      "description": "Executive presentation slide deck",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "slides": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["id", "title"]
+    },
+    "ChangeRequest": {
+      "title": "ChangeRequest",
+      "description": "Pending approval request for locked sheet edit",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "trackerId": { "type": "string" },
+        "status": { "type": "string" },
+        "requestedAt": { "type": "string" }
+      },
+      "required": ["id", "trackerId", "status"]
+    },
+    "Meta": {
+      "title": "Meta",
+      "description": "System state metadata and synchronization heartbeats",
+      "type": "object",
+      "properties": {
+        "totalTrackers": { "type": "number" },
+        "lastSyncedAt": { "type": "string" },
+        "syncedBy": { "type": "string" }
+      }
+    }
+  },
+  "firestore": {
+    "/trackers/{trackerId}": {
+      "schema": "Tracker",
+      "description": "Collection of all project trackers and spreadsheets"
+    },
+    "/folders/{folderId}": {
+      "schema": "Folder",
+      "description": "Collection of organization folders"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "Collection of team members and collaborator profiles"
+    },
+    "/siteVisits/{visitId}": {
+      "schema": "SiteVisit",
+      "description": "Collection of site attendance GPS records"
+    },
+    "/decks/{deckId}": {
+      "schema": "ExecutiveDeck",
+      "description": "Collection of executive slide presentations"
+    },
+    "/changeRequests/{requestId}": {
+      "schema": "ChangeRequest",
+      "description": "Collection of sheet lock edit approval requests"
+    },
+    "/meta/{docId}": {
+      "schema": "Meta",
+      "description": "Collection of metadata documents"
+    }
+  }
+}

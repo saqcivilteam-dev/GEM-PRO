@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GEM PRO Generic Tracker System — Professional Excel-Style Multi-Tracker</title>
+    <meta name="description" content="Professional Excel-style multi-tracker platform with Day-by-Day SLA monitoring, Legal Fees & Compliance checklists, customizable executive dashboards, and staff site attendance." />
+    <meta property="og:title" content="GEM PRO Generic Tracker System — Professional Excel-Style Multi-Tracker" />
+    <meta property="og:description" content="Professional Excel-style multi-tracker platform with Day-by-Day SLA monitoring, Legal Fees & Compliance checklists, customizable executive dashboards, and staff site attendance." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#020617" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="GenericTrack" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/svg+xml" href="/icon.svg" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+      (function() {
+        // Intercept Vite HMR WebSocket in cloud sandbox so it never closes uncleanly
+        if (typeof window !== 'undefined' && window.WebSocket) {
+          var NativeWebSocket = window.WebSocket;
+          function ViteSafeWebSocket(url, protocols) {
+            var isHmr = (protocols === 'vite-hmr') ||
+              (Array.isArray(protocols) && protocols.indexOf('vite-hmr') !== -1) ||
+              (typeof url === 'string' && (url.indexOf('vite-hmr') !== -1 || url.indexOf('/@vite/') !== -1));
+
+            if (isHmr) {
+              var stub = new EventTarget();
+              stub.url = url;
+              stub.readyState = 1; // WebSocket.OPEN
+              stub.protocol = 'vite-hmr';
+              stub.extensions = '';
+              stub.bufferedAmount = 0;
+              stub.binaryType = 'blob';
+              stub.send = function() {};
+              stub.close = function() {
+                stub.readyState = 3;
+                var closeEvt = typeof CloseEvent !== 'undefined'
+                  ? new CloseEvent('close', { wasClean: true, code: 1000, reason: 'Normal Closure' })
+                  : new Event('close');
+                stub.dispatchEvent(closeEvt);
+                if (typeof stub.onclose === 'function') stub.onclose(closeEvt);
+              };
+              setTimeout(function() {
+                var openEvt = new Event('open');
+                stub.dispatchEvent(openEvt);
+                if (typeof stub.onopen === 'function') stub.onopen(openEvt);
+              }, 1);
+              return stub;
+            }
+            return new NativeWebSocket(url, protocols);
+          }
+          ViteSafeWebSocket.prototype = NativeWebSocket.prototype;
+          ViteSafeWebSocket.CONNECTING = 0;
+          ViteSafeWebSocket.OPEN = 1;
+          ViteSafeWebSocket.CLOSING = 2;
+          ViteSafeWebSocket.CLOSED = 3;
+          window.WebSocket = ViteSafeWebSocket;
+        }
+
+        // Secondary defense: suppress benign Vite dev WebSocket HMR closure in console.error
+        var origConsoleError = console.error;
+        console.error = function() {
+          var args = Array.prototype.slice.call(arguments);
+          var str = args.map(function(a) {
+            return String((a && (a.message || a.stack || a)) || '');
+          }).join(' ');
+          if (
+            str.indexOf('WebSocket closed without opened') !== -1 ||
+            (str.indexOf('[vite]') !== -1 && str.indexOf('WebSocket') !== -1) ||
+            str.indexOf('@vite/client') !== -1
+          ) {
+            return;
+          }
+          return origConsoleError.apply(console, arguments);
+        };
+
+        window.addEventListener('error', function(event) {
+          var msg = (event && (event.message || (event.error && event.error.message))) || '';
+          var file = (event && event.filename) || '';
+          var stack = (event && event.error && event.error.stack) || '';
+          if (
+            msg.indexOf('WebSocket') !== -1 ||
+            msg.indexOf('@vite/client') !== -1 ||
+            file.indexOf('@vite/client') !== -1 ||
+            stack.indexOf('@vite/client') !== -1
+          ) {
+            event.preventDefault();
+            event.stopPropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          var reason = String((event && event.reason) || '');
+          var stack = String((event && event.reason && event.reason.stack) || '');
+          if (
+            reason.indexOf('WebSocket') !== -1 ||
+            reason.indexOf('@vite/client') !== -1 ||
+            stack.indexOf('@vite/client') !== -1
+          ) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+        }, true);
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

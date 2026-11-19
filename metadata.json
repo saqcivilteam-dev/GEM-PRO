@@ -1,0 +1,10 @@
+{
+  "name": "GEM PRO Generic Tracker System",
+  "description": "Professional Excel-style multi-tracker platform with Day-by-Day SLA monitoring, Legal Fees & Compliance checklists, customizable executive dashboards, and staff site attendance.",
+  "requestFramePermissions": [
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

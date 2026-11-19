@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a" />
+      <stop offset="50%" stop-color="#020617" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="gridGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" />
+      <stop offset="50%" stop-color="#3b82f6" />
+      <stop offset="100%" stop-color="#6366f1" />
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#10b981" />
+      <stop offset="100%" stop-color="#34d399" />
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="16" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base -->
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  <rect width="504" height="504" x="4" y="4" rx="108" fill="none" stroke="#334155" stroke-width="4" stroke-opacity="0.6" />
+
+  <!-- Spreadsheet Grid Backdrop -->
+  <g transform="translate(96, 96)">
+    <!-- Header Row -->
+    <rect x="0" y="0" width="320" height="60" rx="12" fill="#1e293b" stroke="#475569" stroke-width="2" />
+    <rect x="12" y="16" width="70" height="28" rx="6" fill="#3b82f6" fill-opacity="0.8" />
+    <rect x="94" y="16" width="100" height="28" rx="6" fill="#0284c7" fill-opacity="0.6" />
+    <rect x="206" y="16" width="102" height="28" rx="6" fill="#10b981" fill-opacity="0.8" />
+
+    <!-- Grid Rows -->
+    <rect x="0" y="74" width="320" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" />
+    <rect x="12" y="92" width="70" height="26" rx="4" fill="#334155" />
+    <rect x="94" y="92" width="120" height="26" rx="4" fill="#1e293b" />
+    <rect x="226" y="92" width="82" height="26" rx="4" fill="#065f46" />
+
+    <rect x="0" y="152" width="320" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" />
+    <rect x="12" y="170" width="70" height="26" rx="4" fill="#334155" />
+    <rect x="94" y="170" width="140" height="26" rx="4" fill="#1e293b" />
+    <rect x="246" y="170" width="62" height="26" rx="4" fill="#0369a1" />
+
+    <rect x="0" y="230" width="320" height="64" rx="10" fill="#0f172a" stroke="#334155" stroke-width="2" />
+    <rect x="12" y="248" width="70" height="26" rx="4" fill="#334155" />
+    <rect x="94" y="248" width="110" height="26" rx="4" fill="#1e293b" />
+    <rect x="216" y="248" width="92" height="26" rx="4" fill="#10b981" />
+  </g>
+
+  <!-- Front Center Badge: Shield & Lightning Offline Local Icon -->
+  <circle cx="370" cy="370" r="84" fill="#090d16" stroke="url(#gridGrad)" stroke-width="8" filter="url(#glow)" />
+  <path d="M 370 316 L 396 358 L 374 358 L 380 404 L 344 366 L 366 366 Z" fill="url(#accentGrad)" />
+</svg>
