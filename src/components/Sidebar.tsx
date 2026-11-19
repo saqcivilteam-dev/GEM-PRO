@@ -26,9 +26,6 @@ import {
   ArrowDown,
   ArrowRight,
   Sparkles,
-  Github,
-  Rocket,
-  Cloud,
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -477,18 +474,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </div>
 
-        {onOpenDevOpsModal && (
-          <div className="p-2 border-t border-slate-800 flex flex-col items-center gap-1.5 w-full">
-            <button
-              type="button"
-              onClick={() => onOpenDevOpsModal('pipeline')}
-              className="p-2 text-indigo-400 hover:text-white rounded-lg hover:bg-indigo-950/60 transition-colors"
-              title="GitHub ➔ Vercel Auto-Deployment Pipeline"
-            >
-              <Github className="w-4 h-4" />
-            </button>
-          </div>
-        )}
       </aside>
     );
   }
@@ -1096,30 +1081,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
           })}
         </div>
 
-        {/* Sidebar Footer with Quick DevOps Hub Access */}
+        {/* Sidebar Footer */}
         <div className="p-2.5 border-t border-slate-800 bg-slate-950 text-[11px] text-slate-400 space-y-2">
-          {onOpenDevOpsModal && (
-            <button
-              type="button"
-              onClick={() => onOpenDevOpsModal('pipeline')}
-              className="w-full px-2.5 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-emerald-600/60 text-slate-300 hover:text-white transition-all flex items-center justify-between group cursor-pointer"
-              title="Auto Update in GitHub connected to Vercel (CI/CD Continuous Deployment Pipeline)"
-            >
-              <div className="flex items-center gap-1.5">
-                <Github className="w-3.5 h-3.5 text-indigo-400 group-hover:scale-110 transition-transform" />
-                <span className="font-semibold text-xs text-slate-200">Git ➔ Vercel</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono font-bold">
-                  Auto CI/CD
-                </span>
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-500/20 text-sky-300 font-mono">
-                  Vercel
-                </span>
-              </div>
-            </button>
-          )}
-
           <div className="flex items-center justify-between text-[10px] px-0.5">
             <span>{trackers.length} Active Trackers</span>
             <span className="font-mono text-emerald-400">PHP (₱) Default</span>
