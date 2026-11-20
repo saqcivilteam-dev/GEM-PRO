@@ -68,7 +68,6 @@ import {
   Sparkles,
   X,
   Save,
-  Database,
   Check,
   RefreshCw,
   Download,
@@ -77,8 +76,6 @@ import {
   ZoomOut,
   RotateCw,
   Camera,
-  Cloud,
-  Users,
 } from 'lucide-react';
 
 /**
@@ -2053,22 +2050,21 @@ export const ExcelGrid: React.FC<ExcelGridProps> = ({
 
   return (
     <div className="flex-1 flex flex-col bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-2xl text-slate-100">
-      {/* Excel-Style Organized Ribbon Bar - Compact segmented button groups to lessen screen space */}
-      <div className="px-3 py-1.5 bg-slate-950 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2 text-xs">
-        {/* Left Action Groups */}
+      {/* Tier 1: Primary Operations & Sheet View Controls */}
+      <div className="px-3 py-2 bg-slate-950 border-b border-slate-800/90 flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-xs">
+        {/* Left: Row Operations & Excel Import/Export */}
         <div className="flex flex-wrap items-center gap-1.5">
           {canEdit && (
-            <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md p-0.5">
-              {/* Prominent Save Changes Button */}
+            <>
               {onSaveChanges && (
                 <button
                   type="button"
                   onClick={onSaveChanges}
                   disabled={isSaving}
-                  className={`px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 transition-all cursor-pointer ${
+                  className={`px-2.5 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
                     hasUnsavedChanges
-                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs'
-                      : 'bg-slate-800 hover:bg-slate-750 text-slate-200'
+                      ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                      : 'bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200'
                   }`}
                   title={`Save all edits & changes (Ctrl+S)${lastSavedTime ? ` · Last saved at ${lastSavedTime}` : ''}`}
                 >
@@ -2079,38 +2075,36 @@ export const ExcelGrid: React.FC<ExcelGridProps> = ({
                   ) : (
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                   )}
-                  <span>{isSaving ? 'Saving' : hasUnsavedChanges ? 'Save' : 'Saved'}</span>
+                  <span>{isSaving ? 'Saving...' : hasUnsavedChanges ? 'Save' : 'Saved'}</span>
                   {hasUnsavedChanges && unsavedCount > 0 && (
-                    <span className="px-1 py-0.2 rounded-full bg-black/40 text-white text-[9px] font-mono font-bold">
-                      {unsavedCount}
+                    <span className="font-mono tabular-nums text-[11px] opacity-90">
+                      ({unsavedCount})
                     </span>
                   )}
                 </button>
               )}
 
-              {/* Add Row Button */}
               <button
                 type="button"
                 onClick={handleAddRow}
-                className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white rounded text-xs font-bold flex items-center gap-1 transition-colors"
+                className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                 title="Add new row on top of the tracker"
               >
                 <Plus className="w-3.5 h-3.5" />
-                <span>+ Row</span>
+                <span>Add Row</span>
               </button>
 
-              {/* Undo Button */}
               <button
                 type="button"
                 onClick={handleUndo}
                 disabled={historyStack.length === 0}
-                className="px-2 py-1 hover:bg-slate-800 disabled:opacity-30 text-slate-400 hover:text-slate-200 rounded text-xs flex items-center gap-1 transition-colors"
+                className="px-2 py-1.5 hover:bg-slate-800/80 disabled:opacity-30 text-slate-300 hover:text-white rounded-md text-xs font-medium flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer disabled:cursor-not-allowed"
                 title="Undo last change (Ctrl+Z)"
               >
                 <Undo2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Undo</span>
               </button>
 
-              {/* Selected Cell Delete */}
               {selectedCell && (
                 <button
                   type="button"
@@ -2118,470 +2112,440 @@ export const ExcelGrid: React.FC<ExcelGridProps> = ({
                     const row = tracker.rows.find((r) => r.id === selectedCell.rowId) || pagedRows[selectedCell.pIdx];
                     if (row) handleDeleteRow(row);
                   }}
-                  className="px-2 py-1 bg-rose-950/80 hover:bg-rose-900 text-rose-300 rounded text-xs font-semibold flex items-center gap-1 transition-colors"
-                  title="Delete selected row (Instant delete · Undo available)"
+                  className="px-2 py-1.5 bg-rose-950/70 hover:bg-rose-900/80 text-rose-300 rounded-md text-xs font-medium flex items-center gap-1 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+                  title="Delete selected row (Undo available)"
                 >
-                  <Trash2 className="w-3 h-3 text-rose-400" />
-                  <span>Del</span>
+                  <Trash2 className="w-3.5 h-3.5 text-rose-400" />
+                  <span>Delete Row</span>
                 </button>
               )}
 
-              {/* Delete All Rows Toolbar Button */}
-              {canEdit && tracker.rows.length > 0 && (
+              {tracker.rows.length > 0 && (
                 <button
                   type="button"
                   onClick={() => {
                     setDeleteAllOption('all');
                     setIsDeleteAllModalOpen(true);
                   }}
-                  className="px-2 py-1 bg-rose-950/60 hover:bg-rose-900 border border-rose-800/80 text-rose-300 hover:text-white rounded text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  className="px-2 py-1.5 hover:bg-rose-950/60 text-rose-400 hover:text-rose-200 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
                   title={`Delete all rows (${tracker.rows.length} rows) · With safety confirmation and undo`}
                 >
-                  <Trash2 className="w-3 h-3 text-rose-400" />
+                  <Trash2 className="w-3.5 h-3.5" />
                   <span>Delete All</span>
-                  <span className="px-1 py-0.2 rounded bg-rose-900/80 text-[10px] font-mono text-rose-200">
-                    {tracker.rows.length}
+                  <span className="font-mono tabular-nums text-[11px] text-rose-300/80">
+                    ({tracker.rows.length})
                   </span>
                 </button>
               )}
-            </div>
+
+              <div className="h-5 w-px bg-slate-800 mx-1 hidden sm:block" aria-hidden="true" />
+            </>
           )}
 
-          {/* Excel Import & Export Group */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md p-0.5">
+          {/* Excel Export & Import */}
+          <button
+            type="button"
+            onClick={() => exportTrackerToExcel(tracker)}
+            className="px-2.5 py-1.5 hover:bg-emerald-950/50 text-emerald-300 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+            title="Export true Excel .xlsx file"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span>Export</span>
+          </button>
+
+          <label
+            className="px-2.5 py-1.5 hover:bg-slate-800 text-slate-200 rounded-md text-xs font-medium flex items-center gap-1.5 cursor-pointer transition-colors whitespace-nowrap shrink-0"
+            title="Import Excel spreadsheet (.xlsx, .xls, .csv)"
+          >
+            <Upload className="w-3.5 h-3.5 text-sky-400" />
+            <span>Import</span>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv"
+              className="hidden"
+              onChange={handleExcelImport}
+            />
+          </label>
+        </div>
+
+        {/* Right: Sheet View, Layout & Lock Controls */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          {canEdit && (
             <button
               type="button"
-              onClick={() => exportTrackerToExcel(tracker)}
-              className="px-2.5 py-1 bg-emerald-950/50 hover:bg-emerald-900/50 text-emerald-300 rounded text-xs font-semibold flex items-center gap-1 transition-colors"
-              title="Export true Excel .xlsx file"
+              onClick={onOpenCustomizeColumns}
+              className="px-2.5 py-1.5 hover:bg-slate-800 text-slate-300 hover:text-white rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer"
+              title="Customize columns, data types, order, and appearance"
             >
-              <FileSpreadsheet className="w-3.5 h-3.5" />
-              <span>Export</span>
+              <Sliders className="w-3.5 h-3.5 text-sky-400" />
+              <span>Columns</span>
+            </button>
+          )}
+
+          {/* Freeze Panes Dropdown */}
+          <div className="relative" ref={freezeMenuRef}>
+            <button
+              type="button"
+              onClick={() => setIsFreezeMenuOpen(!isFreezeMenuOpen)}
+              className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+                frozenColsCount > 0 || frozenRowsCount > 0
+                  ? 'bg-sky-950/70 text-sky-200 border border-sky-500/40'
+                  : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+              }`}
+              title={`Freeze Panes: ${frozenColsCount} col(s), ${frozenRowsCount} row(s) frozen. Click to configure.`}
+            >
+              <Snowflake className={`w-3.5 h-3.5 ${frozenColsCount > 0 || frozenRowsCount > 0 ? 'text-sky-400' : 'text-slate-400'}`} />
+              <span>Freeze</span>
+              <span className="font-mono tabular-nums text-[11px] text-sky-300/90">
+                {frozenColsCount}C/{frozenRowsCount}R
+              </span>
+              <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isFreezeMenuOpen ? 'rotate-180' : ''}`} />
             </button>
 
-            <label
-              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded text-xs font-semibold flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
-              title="Import Excel spreadsheet (.xlsx, .xls, .csv)"
-            >
-              <Upload className="w-3.5 h-3.5 text-sky-400" />
-              <span>Import</span>
-              <input
-                type="file"
-                accept=".xlsx,.xls,.csv"
-                className="hidden"
-                onChange={handleExcelImport}
-              />
-            </label>
-          </div>
-
-          {/* View & Columns Customization Group */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md p-0.5">
-            {canEdit && (
-              <button
-                type="button"
-                onClick={onOpenCustomizeColumns}
-                className="px-2 py-1 hover:bg-slate-800 text-slate-300 rounded text-xs font-medium flex items-center gap-1 transition-colors"
-                title="Customize columns, data types, order, and appearance"
-              >
-                <Sliders className="w-3.5 h-3.5 text-sky-400" />
-                <span>Columns</span>
-              </button>
-            )}
-
-            {/* Freeze Panes Toolbar Dropdown */}
-            <div className="relative" ref={freezeMenuRef}>
-              <button
-                type="button"
-                onClick={() => setIsFreezeMenuOpen(!isFreezeMenuOpen)}
-                className={`px-2 py-1 rounded text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
-                  frozenColsCount > 0 || frozenRowsCount > 0
-                    ? 'bg-sky-950/80 text-sky-200 border border-sky-500/50 shadow-xs'
-                    : 'hover:bg-slate-800 text-slate-400 hover:text-white'
-                }`}
-                title={`Freeze Panes: ${frozenColsCount} col(s), ${frozenRowsCount} row(s) frozen. Click to configure.`}
-              >
-                <Snowflake className={`w-3.5 h-3.5 ${frozenColsCount > 0 || frozenRowsCount > 0 ? 'text-sky-400' : 'text-slate-400'}`} />
-                <span>Freeze</span>
-                <span className="px-1.5 py-0.2 rounded bg-slate-900 border border-slate-700 font-mono text-[10px] text-sky-300">
-                  {frozenColsCount}C · {frozenRowsCount}R
-                </span>
-                <ChevronDown className={`w-3 h-3 text-slate-400 transition-transform ${isFreezeMenuOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {/* Dropdown Menu */}
-              {isFreezeMenuOpen && (
-                <div className="absolute left-0 top-full mt-1.5 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-3 z-50 text-slate-200 space-y-3 animate-in fade-in duration-150">
-                  {/* Dropdown Header */}
-                  <div className="flex items-center justify-between pb-2 border-b border-slate-800">
-                    <div className="flex items-center gap-1.5 font-bold text-xs text-white">
-                      <Snowflake className="w-4 h-4 text-sky-400" />
-                      <span>Freeze Panes Configuration</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setIsFreezeMenuOpen(false)}
-                      className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
+            {isFreezeMenuOpen && (
+              <div className="absolute right-0 sm:left-0 sm:right-auto top-full mt-1.5 w-72 bg-slate-900 border border-slate-700 rounded-xl shadow-2xl p-3 z-50 text-slate-200 space-y-3 animate-in fade-in duration-150">
+                <div className="flex items-center justify-between pb-2 border-b border-slate-800">
+                  <div className="flex items-center gap-1.5 font-bold text-xs text-white">
+                    <Snowflake className="w-4 h-4 text-sky-400" />
+                    <span>Freeze Panes Configuration</span>
                   </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsFreezeMenuOpen(false)}
+                    className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
 
-                  {/* Quick Presets */}
-                  <div className="space-y-1.5">
-                    <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
-                      Quick Presets
-                    </span>
-                    <div className="grid grid-cols-2 gap-1.5">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleSetFreeze(2, 1);
-                          setIsFreezeMenuOpen(false);
-                        }}
-                        className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
-                          frozenColsCount === 2 && frozenRowsCount === 1
-                            ? 'bg-sky-950 border-sky-500 text-white'
-                            : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
-                        }`}
-                      >
-                        <div className="font-bold text-[11px] text-sky-300">Classic Panes</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">2 Cols + 1 Top Row</div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleSetFreeze(1, 0);
-                          setIsFreezeMenuOpen(false);
-                        }}
-                        className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
-                          frozenColsCount === 1 && frozenRowsCount === 0
-                            ? 'bg-sky-950 border-sky-500 text-white'
-                            : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
-                        }`}
-                      >
-                        <div className="font-bold text-[11px] text-amber-300">Site ID Only</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">1 Col + 0 Rows</div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleSetFreeze(0, 1);
-                          setIsFreezeMenuOpen(false);
-                        }}
-                        className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
-                          frozenColsCount === 0 && frozenRowsCount === 1
-                            ? 'bg-sky-950 border-sky-500 text-white'
-                            : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
-                        }`}
-                      >
-                        <div className="font-bold text-[11px] text-emerald-300">Top Row Only</div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">0 Cols + 1 Row</div>
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          handleSetFreeze(0, 0);
-                          setIsFreezeMenuOpen(false);
-                        }}
-                        className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
-                          frozenColsCount === 0 && frozenRowsCount === 0
-                            ? 'bg-rose-950/50 border-rose-500 text-rose-200'
-                            : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-800'
-                        }`}
-                      >
-                        <div className="font-bold text-[11px] text-rose-300">Unfreeze All</div>
-                        <div className="text-[10px] text-slate-500 mt-0.5">0 Cols + 0 Rows</div>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Freeze Selected Option (if cell selected) */}
-                  {selectedCell && (
+                <div className="space-y-1.5">
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">
+                    Quick Presets
+                  </span>
+                  <div className="grid grid-cols-2 gap-1.5">
                     <button
                       type="button"
                       onClick={() => {
-                        handleFreezeUpToSelected();
+                        handleSetFreeze(2, 1);
                         setIsFreezeMenuOpen(false);
                       }}
-                      className="w-full p-2 rounded-lg bg-indigo-950/80 hover:bg-indigo-900/90 border border-indigo-700/70 text-indigo-200 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer"
+                      className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
+                        frozenColsCount === 2 && frozenRowsCount === 1
+                          ? 'bg-sky-950 border-sky-500 text-white'
+                          : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
+                      }`}
                     >
-                      <div className="flex items-center gap-1.5 truncate">
-                        <Split className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                        <span className="truncate">Freeze up to selected cell</span>
-                      </div>
-                      <span className="px-1.5 py-0.2 rounded bg-indigo-900 font-mono text-[10px] text-white">
-                        Row #{selectedCell.pIdx + 1}
-                      </span>
+                      <div className="font-bold text-[11px] text-sky-300">Classic Panes</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">2 Cols + 1 Top Row</div>
                     </button>
-                  )}
 
-                  {/* Freeze Columns Selector */}
-                  <div className="space-y-1.5 pt-2 border-t border-slate-800">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-300 flex items-center gap-1">
-                        <Columns className="w-3 h-3 text-sky-400" />
-                        <span>Freeze Columns:</span>
-                      </span>
-                      <span className="text-[11px] font-mono font-bold text-sky-400">
-                        {frozenColsCount} {frozenColsCount === 1 ? 'col' : 'cols'}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-6 gap-1">
-                      {[0, 1, 2, 3, 4, 5].map((cnt) => (
-                        <button
-                          key={`fc_${cnt}`}
-                          type="button"
-                          onClick={() => handleSetFreeze(cnt, tracker.frozenRows ?? 0)}
-                          className={`py-1 rounded text-xs font-bold border transition-all cursor-pointer ${
-                            frozenColsCount === cnt
-                              ? 'bg-sky-600 border-sky-400 text-white shadow-xs'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                          }`}
-                        >
-                          {cnt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSetFreeze(1, 0);
+                        setIsFreezeMenuOpen(false);
+                      }}
+                      className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
+                        frozenColsCount === 1 && frozenRowsCount === 0
+                          ? 'bg-sky-950 border-sky-500 text-white'
+                          : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="font-bold text-[11px] text-amber-300">Site ID Only</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">1 Col + 0 Rows</div>
+                    </button>
 
-                  {/* Freeze Rows Selector */}
-                  <div className="space-y-1.5 pt-2 border-t border-slate-800">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-300 flex items-center gap-1">
-                        <Rows className="w-3 h-3 text-indigo-400" />
-                        <span>Freeze Top Rows:</span>
-                      </span>
-                      <span className="text-[11px] font-mono font-bold text-indigo-400">
-                        {frozenRowsCount} {frozenRowsCount === 1 ? 'row' : 'rows'}
-                      </span>
-                    </div>
-                    <div className="grid grid-cols-5 gap-1">
-                      {[0, 1, 2, 3, 5].map((cnt) => (
-                        <button
-                          key={`fr_${cnt}`}
-                          type="button"
-                          onClick={() => handleSetFreeze(tracker.frozenColumns !== undefined ? tracker.frozenColumns : 2, cnt)}
-                          className={`py-1 rounded text-xs font-bold border transition-all cursor-pointer ${
-                            frozenRowsCount === cnt
-                              ? 'bg-indigo-600 border-indigo-400 text-white shadow-xs'
-                              : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
-                          }`}
-                        >
-                          {cnt}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSetFreeze(0, 1);
+                        setIsFreezeMenuOpen(false);
+                      }}
+                      className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
+                        frozenColsCount === 0 && frozenRowsCount === 1
+                          ? 'bg-sky-950 border-sky-500 text-white'
+                          : 'bg-slate-950/70 border-slate-800 text-slate-300 hover:border-slate-700 hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="font-bold text-[11px] text-emerald-300">Top Row Only</div>
+                      <div className="text-[10px] text-slate-400 mt-0.5">0 Cols + 1 Row</div>
+                    </button>
 
-                  {/* Help Note */}
-                  <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 shrink-0" />
-                    <span>Blue divider line indicates the frozen pane boundary.</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        handleSetFreeze(0, 0);
+                        setIsFreezeMenuOpen(false);
+                      }}
+                      className={`p-2 rounded-lg border text-left text-xs transition-colors cursor-pointer ${
+                        frozenColsCount === 0 && frozenRowsCount === 0
+                          ? 'bg-rose-950/50 border-rose-500 text-rose-200'
+                          : 'bg-slate-950/70 border-slate-800 text-slate-400 hover:border-slate-700 hover:bg-slate-800'
+                      }`}
+                    >
+                      <div className="font-bold text-[11px] text-rose-300">Unfreeze All</div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">0 Cols + 0 Rows</div>
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {onOpenProjectSlaModal && (
-              (tracker.enableSla !== false && tracker.slaConfig?.enabled !== false) ? (
-                <button
-                  type="button"
-                  onClick={onOpenProjectSlaModal}
-                  className="px-2 py-1 rounded text-xs font-bold flex items-center gap-1 transition-colors bg-indigo-950/70 hover:bg-indigo-900 border border-indigo-700/60 text-indigo-200 hover:text-white cursor-pointer"
-                  title={`Project SLA Target: ${getEffectiveTrackerSlaConfig(tracker).targetDays}d (${getEffectiveTrackerSlaConfig(tracker).scopeName}). Click to customize or choose SLA options.`}
-                >
-                  <Target className="w-3.5 h-3.5 text-amber-400" />
-                  <span>SLA ({getEffectiveTrackerSlaConfig(tracker).targetDays}d)</span>
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onOpenProjectSlaModal}
-                  className="px-2 py-1 rounded text-xs font-medium flex items-center gap-1 transition-colors bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-400 hover:text-white cursor-pointer"
-                  title="SLA tracking is not active on this tracker. Click to choose SLA options or enable it."
-                >
-                  <Target className="w-3.5 h-3.5 text-slate-500" />
-                  <span>SLA: Off</span>
-                  <span className="text-[10px] text-sky-400 font-bold ml-0.5 hover:underline">+ Setup</span>
-                </button>
-              )
-            )}
-
-            <button
-              type="button"
-              onClick={() => setShowFilterBar(!showFilterBar)}
-              className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 transition-colors ${
-                showFilterBar
-                  ? 'bg-indigo-950 text-indigo-300 font-bold'
-                  : 'hover:bg-slate-800 text-slate-400 hover:text-white'
-              }`}
-              title="Toggle column filters"
-            >
-              <Filter className="w-3.5 h-3.5" />
-              <span>Filter</span>
-            </button>
-
-            {/* Summary toggle */}
-            <button
-              type="button"
-              onClick={() => {
-                if (!showSummaryRow) {
-                  setShowSummaryRow(true);
-                  setSummaryPosition('top');
-                } else if (summaryPosition === 'top') {
-                  setSummaryPosition('bottom');
-                } else if (summaryPosition === 'bottom') {
-                  setSummaryPosition('both');
-                } else {
-                  setShowSummaryRow(false);
-                }
-              }}
-              className={`px-2 py-1 rounded text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer ${
-                showSummaryRow ? 'bg-indigo-600/40 text-indigo-200 border border-indigo-500/40' : 'text-slate-400 hover:text-white'
-              }`}
-              title={`Summary row: ${showSummaryRow ? summaryPosition : 'Hidden'} (Click to cycle)`}
-            >
-              <span className="font-mono text-emerald-400 font-black">Σ</span>
-              <span>{showSummaryRow ? summaryPosition.toUpperCase() : 'Σ'}</span>
-            </button>
-          </div>
-
-          {/* Sync & Cloud Services Group */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md p-0.5">
-            {onOpenServerModal && (
-              <button
-                type="button"
-                onClick={onOpenServerModal}
-                className="px-2 py-1 rounded text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer text-emerald-300 hover:bg-emerald-950/60"
-                title="Team Live Sync (Real-time collaboration with team)"
-              >
-                <Users className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Sync</span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-              </button>
-            )}
-
-            {onOpenSupabaseModal && (
-              <button
-                type="button"
-                onClick={onOpenSupabaseModal}
-                className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                  isSupabaseConnected ? 'text-emerald-300 bg-emerald-950/40' : 'text-slate-400 hover:text-slate-200'
-                }`}
-                title="Connect Supabase PostgreSQL"
-              >
-                <Database className="w-3.5 h-3.5" />
-                <span>DB</span>
-              </button>
-            )}
-
-            {onOpenCloudflareModal && (
-              <button
-                type="button"
-                onClick={onOpenCloudflareModal}
-                className={`px-2 py-1 rounded text-xs font-medium flex items-center gap-1 transition-colors cursor-pointer ${
-                  isCloudflareConnected ? 'text-orange-300 bg-orange-950/40' : 'text-slate-400 hover:text-slate-200'
-                }`}
-                title="Cloudflare Edge Sync"
-              >
-                <Cloud className="w-3.5 h-3.5" />
-                <span>Edge</span>
-              </button>
-            )}
-          </div>
-
-          {/* Lock & Date Group */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-md p-0.5">
-            <button
-              type="button"
-              onClick={handleToggleLock}
-              className={`px-2 py-1 rounded text-xs font-bold flex items-center gap-1 transition-all ${
-                tracker.isLocked
-                  ? 'bg-amber-500 text-black'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-              title={tracker.isLocked ? 'Sheet is LOCKED. Click to UNLOCK.' : 'Click to LOCK sheet data.'}
-            >
-              {tracker.isLocked ? (
-                <>
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Locked</span>
-                </>
-              ) : (
-                <>
-                  <Unlock className="w-3.5 h-3.5" />
-                  <span>Lock</span>
-                </>
-              )}
-            </button>
-
-            {onOpenLockApprovalModal && (
-              <button
-                type="button"
-                onClick={onOpenLockApprovalModal}
-                className="p-1 text-slate-400 hover:text-white rounded hover:bg-slate-800 transition-colors relative"
-                title="Protection Settings & Approval Queue"
-              >
-                <ShieldAlert className="w-3.5 h-3.5" />
-                {pendingApprovalsCount > 0 && (
-                  <span className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-amber-500 text-black text-[9px] font-black flex items-center justify-center">
-                    {pendingApprovalsCount}
-                  </span>
+                {selectedCell && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      handleFreezeUpToSelected();
+                      setIsFreezeMenuOpen(false);
+                    }}
+                    className="w-full p-2 rounded-lg bg-indigo-950/80 hover:bg-indigo-900/90 border border-indigo-700/70 text-indigo-200 text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center gap-1.5 truncate">
+                      <Split className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                      <span className="truncate">Freeze up to selected cell</span>
+                    </div>
+                    <span className="px-1.5 py-0.2 rounded bg-indigo-900 font-mono text-[10px] text-white">
+                      Row #{selectedCell.pIdx + 1}
+                    </span>
+                  </button>
                 )}
-              </button>
-            )}
 
-            {canEdit && (
+                <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-300 flex items-center gap-1">
+                      <Columns className="w-3 h-3 text-sky-400" />
+                      <span>Freeze Columns:</span>
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-sky-400">
+                      {frozenColsCount} {frozenColsCount === 1 ? 'col' : 'cols'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-6 gap-1">
+                    {[0, 1, 2, 3, 4, 5].map((cnt) => (
+                      <button
+                        key={`fc_${cnt}`}
+                        type="button"
+                        onClick={() => handleSetFreeze(cnt, tracker.frozenRows ?? 0)}
+                        className={`py-1 rounded text-xs font-bold border transition-all cursor-pointer ${
+                          frozenColsCount === cnt
+                            ? 'bg-sky-600 border-sky-400 text-white shadow-xs'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        {cnt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-1.5 pt-2 border-t border-slate-800">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-300 flex items-center gap-1">
+                      <Rows className="w-3 h-3 text-indigo-400" />
+                      <span>Freeze Top Rows:</span>
+                    </span>
+                    <span className="text-[11px] font-mono font-bold text-indigo-400">
+                      {frozenRowsCount} {frozenRowsCount === 1 ? 'row' : 'rows'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-5 gap-1">
+                    {[0, 1, 2, 3, 5].map((cnt) => (
+                      <button
+                        key={`fr_${cnt}`}
+                        type="button"
+                        onClick={() => handleSetFreeze(tracker.frozenColumns !== undefined ? tracker.frozenColumns : 2, cnt)}
+                        className={`py-1 rounded text-xs font-bold border transition-all cursor-pointer ${
+                          frozenRowsCount === cnt
+                            ? 'bg-indigo-600 border-indigo-400 text-white shadow-xs'
+                            : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
+                        }`}
+                      >
+                        {cnt}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-slate-800 text-[10px] text-slate-400">
+                  Blue divider line indicates the frozen pane boundary.
+                </div>
+              </div>
+            )}
+          </div>
+
+          {onOpenProjectSlaModal && (
+            (tracker.enableSla !== false && tracker.slaConfig?.enabled !== false) ? (
               <button
                 type="button"
-                onClick={handleStandardizeAllDates}
-                className="px-2 py-1 hover:bg-amber-950/40 text-amber-300 rounded text-xs font-medium flex items-center gap-1 transition-colors"
-                title="Fix all dates to standard ISO YYYY-MM-DD"
+                onClick={onOpenProjectSlaModal}
+                className="px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors bg-indigo-950/60 hover:bg-indigo-900/80 border border-indigo-700/50 text-indigo-200 hover:text-white whitespace-nowrap shrink-0 cursor-pointer"
+                title={`Project SLA Target: ${getEffectiveTrackerSlaConfig(tracker).targetDays}d (${getEffectiveTrackerSlaConfig(tracker).scopeName}). Click to customize or choose SLA options.`}
               >
-                <CalendarCheck className="w-3 h-3" />
-                <span className="hidden xl:inline">Fix Dates</span>
+                <Target className="w-3.5 h-3.5 text-amber-400" />
+                <span className="tabular-nums">SLA ({getEffectiveTrackerSlaConfig(tracker).targetDays}d)</span>
               </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onOpenProjectSlaModal}
+                className="px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors hover:bg-slate-800 text-slate-400 hover:text-white whitespace-nowrap shrink-0 cursor-pointer"
+                title="SLA tracking is not active on this tracker. Click to choose SLA options or enable it."
+              >
+                <Target className="w-3.5 h-3.5 text-slate-500" />
+                <span>SLA: Off</span>
+              </button>
+            )
+          )}
+
+          <button
+            type="button"
+            onClick={() => setShowFilterBar(!showFilterBar)}
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              showFilterBar
+                ? 'bg-indigo-950/80 text-indigo-200 border border-indigo-600/40'
+                : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+            }`}
+            title="Toggle column filters"
+          >
+            <Filter className="w-3.5 h-3.5" />
+            <span>Filter</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (!showSummaryRow) {
+                setShowSummaryRow(true);
+                setSummaryPosition('top');
+              } else if (summaryPosition === 'top') {
+                setSummaryPosition('bottom');
+              } else if (summaryPosition === 'bottom') {
+                setSummaryPosition('both');
+              } else {
+                setShowSummaryRow(false);
+              }
+            }}
+            className={`px-2.5 py-1.5 rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              showSummaryRow
+                ? 'bg-indigo-950/80 text-indigo-200 border border-indigo-600/40'
+                : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+            }`}
+            title={`Summary row: ${showSummaryRow ? summaryPosition : 'Hidden'} (Click to cycle)`}
+          >
+            <span className="font-mono text-emerald-400 font-bold">Σ</span>
+            <span>{showSummaryRow ? `Summary: ${summaryPosition.charAt(0).toUpperCase() + summaryPosition.slice(1)}` : 'Summary'}</span>
+          </button>
+
+          <div className="h-5 w-px bg-slate-800 mx-1 hidden sm:block" aria-hidden="true" />
+
+          {/* Sheet Protection Controls */}
+          <button
+            type="button"
+            onClick={handleToggleLock}
+            className={`px-2.5 py-1.5 rounded-md text-xs font-semibold flex items-center gap-1.5 transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
+              tracker.isLocked
+                ? 'bg-amber-500 hover:bg-amber-400 text-black'
+                : 'hover:bg-slate-800 text-slate-300 hover:text-white'
+            }`}
+            title={tracker.isLocked ? 'Sheet is LOCKED. Click to UNLOCK.' : 'Click to LOCK sheet data.'}
+          >
+            {tracker.isLocked ? (
+              <>
+                <Lock className="w-3.5 h-3.5" />
+                <span>Locked</span>
+              </>
+            ) : (
+              <>
+                <Unlock className="w-3.5 h-3.5" />
+                <span>Lock</span>
+              </>
             )}
+          </button>
 
-            {/* Date format selector */}
-            <select
-              value={dateFormatPreference}
-              onChange={(e) => setDateFormatPreference(e.target.value as any)}
-              className="bg-transparent text-[10px] text-sky-300 font-bold px-1 py-0.5 focus:outline-hidden cursor-pointer"
-              title="Select display format for date cells"
+          {onOpenLockApprovalModal && (
+            <button
+              type="button"
+              onClick={onOpenLockApprovalModal}
+              className="p-1.5 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 transition-colors relative shrink-0 cursor-pointer"
+              title="Protection Settings & Approval Queue"
             >
-              <option value="YYYY-MM-DD" className="bg-slate-900 text-white">ISO (YYYY-MM-DD)</option>
-              <option value="MMM DD, YYYY" className="bg-slate-900 text-white">Month (Oct 24, 2026)</option>
-              <option value="MM/DD/YYYY" className="bg-slate-900 text-white">US (MM/DD/YYYY)</option>
-              <option value="DD/MM/YYYY" className="bg-slate-900 text-white">UK/PH (DD/MM/YYYY)</option>
-            </select>
-          </div>
+              <ShieldAlert className="w-3.5 h-3.5" />
+              {pendingApprovalsCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-black text-[9px] font-black flex items-center justify-center tabular-nums">
+                  {pendingApprovalsCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
+      </div>
 
-        {/* Right Search Input & Top Page Controls */}
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <Search className="w-3.5 h-3.5 absolute left-2 top-1/2 -translate-y-1/2 text-slate-500" />
+      {/* Tier 2: Search, Date Format & Pagination Utility Bar */}
+      <div className="px-3 py-1.5 bg-slate-900/60 border-b border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs">
+        {/* Left: Search & Row Count */}
+        <div className="flex items-center gap-3 flex-1 min-w-[220px]">
+          <div className="relative w-full max-w-xs">
+            <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
             <input
               type="text"
               value={gridSearch}
               onChange={(e) => setGridSearch(e.target.value)}
-              placeholder="Search..."
-              className="pl-7 pr-2 py-1 text-xs bg-slate-900 border border-slate-800 rounded text-white placeholder-slate-500 focus:outline-hidden focus:border-sky-500 w-32 lg:w-44"
+              placeholder="Search site ID, remarks, or any column..."
+              className="w-full pl-8 pr-7 py-1 text-xs bg-slate-950 border border-slate-800 rounded-md text-white placeholder-slate-500 focus:outline-hidden focus:border-sky-500 transition-colors"
             />
+            {gridSearch && (
+              <button
+                type="button"
+                onClick={() => setGridSearch('')}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200 cursor-pointer"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <span className="text-[11px] text-slate-400 tabular-nums whitespace-nowrap hidden sm:inline">
+            {totalRows === tracker.rows.length
+              ? `${totalRows} ${totalRows === 1 ? 'row' : 'rows'}`
+              : `${totalRows} of ${tracker.rows.length} rows`}
+          </span>
+        </div>
+
+        {/* Right: Date Format & Pagination */}
+        <div className="flex flex-wrap items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5">
+            {canEdit && (
+              <button
+                type="button"
+                onClick={handleStandardizeAllDates}
+                className="px-2 py-1 hover:bg-amber-950/40 text-amber-300 rounded-md text-xs font-medium flex items-center gap-1 transition-colors whitespace-nowrap cursor-pointer"
+                title="Fix all dates to standard ISO YYYY-MM-DD"
+              >
+                <CalendarCheck className="w-3.5 h-3.5" />
+                <span>Fix Dates</span>
+              </button>
+            )}
+
+            <select
+              value={dateFormatPreference}
+              onChange={(e) => setDateFormatPreference(e.target.value as any)}
+              className="bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-xs text-sky-300 font-medium focus:outline-hidden focus:border-sky-500 cursor-pointer"
+              title="Select display format for date cells"
+            >
+              <option value="YYYY-MM-DD" className="bg-slate-900 text-white">Date: ISO (YYYY-MM-DD)</option>
+              <option value="MMM DD, YYYY" className="bg-slate-900 text-white">Date: Month (Oct 24, 2026)</option>
+              <option value="MM/DD/YYYY" className="bg-slate-900 text-white">Date: US (MM/DD/YYYY)</option>
+              <option value="DD/MM/YYYY" className="bg-slate-900 text-white">Date: UK/PH (DD/MM/YYYY)</option>
+            </select>
           </div>
 
-          {/* Rows selector */}
+          <div className="h-4 w-px bg-slate-800 hidden sm:block" aria-hidden="true" />
+
           <select
             value={pageSize}
             onChange={(e) => {
               setPageSize(Number(e.target.value));
               setCurrentPage(1);
             }}
-            className="bg-slate-900 border border-slate-800 rounded px-1.5 py-1 text-xs text-slate-300 font-semibold focus:outline-hidden cursor-pointer"
+            className="bg-slate-950 border border-slate-800 rounded-md px-2 py-1 text-xs text-slate-300 font-medium focus:outline-hidden focus:border-sky-500 cursor-pointer tabular-nums"
             title="Rows per page"
           >
             <option value={10}>10 rows</option>
@@ -2591,32 +2555,28 @@ export const ExcelGrid: React.FC<ExcelGridProps> = ({
             <option value={999999}>All rows</option>
           </select>
 
-          {/* Top Page Switcher */}
-          <div className="flex items-center gap-1 bg-slate-900 border border-slate-800 px-1.5 py-0.5 rounded text-xs">
+          <div className="flex items-center gap-1 bg-slate-950 border border-slate-800 px-1.5 py-0.5 rounded-md text-xs">
             <button
               type="button"
               disabled={safeCurrentPage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              className="p-0.5 text-slate-400 hover:text-white disabled:opacity-30 rounded hover:bg-slate-800 transition-colors"
-              title="Prev page"
+              className="p-0.5 text-slate-400 hover:text-white disabled:opacity-30 rounded hover:bg-slate-800 transition-colors cursor-pointer disabled:cursor-not-allowed"
+              title="Previous page"
             >
               <ChevronLeft className="w-3.5 h-3.5" />
             </button>
-            <span className="text-[11px] text-sky-400 font-mono font-bold whitespace-nowrap">
-              {safeCurrentPage}/{totalPages}
+            <span className="text-[11px] text-sky-400 font-mono font-semibold whitespace-nowrap tabular-nums px-1">
+              {safeCurrentPage} / {totalPages}
             </span>
             <button
               type="button"
               disabled={safeCurrentPage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              className="p-0.5 text-slate-400 hover:text-white disabled:opacity-30 rounded hover:bg-slate-800 transition-colors"
+              className="p-0.5 text-slate-400 hover:text-white disabled:opacity-30 rounded hover:bg-slate-800 transition-colors cursor-pointer disabled:cursor-not-allowed"
               title="Next page"
             >
               <ChevronRight className="w-3.5 h-3.5" />
             </button>
-            <span className="text-[10px] text-slate-500 font-mono hidden xl:inline">
-              ({totalRows})
-            </span>
           </div>
         </div>
       </div>
